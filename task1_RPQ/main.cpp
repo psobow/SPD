@@ -20,6 +20,7 @@ int calculateC_MAX(std::vector<int> localR, std::vector<int> localP, std::vector
 
 int main(){
     std::cout << "Hello World!\n";
+    std::string line;
     std::string dataName;
     int tempR, tempP, tempQ;
     std::vector<int> newOrder;
