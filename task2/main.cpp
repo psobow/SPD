@@ -6,10 +6,12 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
-
+#include <ctime>
 
 
 int main(){
+    clock_t begin;
+    clock_t end;
 
     std::ifstream myfile("witi.data.txt");
     int quantityOfData = 0;
@@ -44,7 +46,9 @@ int main(){
         subSetVector[0] = 0; // first element has to be equal zero
 
         int sumOfTasksDuranceInSubSet = 0;
-
+        
+        begin = clock();
+        
         for(int subSetIndex = 1; subSetIndex < subSetQuantity; subSetIndex++){
             sumOfTasksDuranceInSubSet = 0;
 
@@ -54,7 +58,7 @@ int main(){
                 parameter b is consecutive power of 2  (eg. for 10 input data: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024) 
                 */
 
-            if(subSetIndex&b) sumOfTasksDuranceInSubSet += taskDurance[i];
+                if(subSetIndex&b) sumOfTasksDuranceInSubSet += taskDurance[i];
             }
 
             subSetVector[subSetIndex] = std::numeric_limits<int>::max();
@@ -68,7 +72,11 @@ int main(){
                 }
             }
         }
-        std::cout << "data." << dataIndex << "  Optimal time: " << subSetVector.back() << "\n";
+        end = clock();
+        double elapsedTimeInMiliSeconds = double(end - begin) / (CLOCKS_PER_SEC / 1000);
+        std::cout << "data." << dataIndex 
+                  << "      Optimal time: " << subSetVector.back() 
+                  << "      elapsed time: " << elapsedTimeInMiliSeconds << " mili-sec.\n";
         subSetVector.clear();
     }    
     
