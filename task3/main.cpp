@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <list>
 #include <algorithm>
 
 class Job{
@@ -34,9 +33,9 @@ class Job{
 };
 
 
-void printList(std::list<Job> &list){
+void printVector(std::vector<Job> &vec){
     int i = 0;
-    for(auto&& job : list){
+    for(auto&& job : vec){
         i++;
         std::cout << "index = " << i << " ";
         job.printlnJob();
@@ -52,7 +51,7 @@ int main(){
     int quantityOfMachines = 0;
     int temporaryValue = 0; // var used to read value from file into it
 
-    std::list<Job> myJobList;
+    std::vector<Job> jobVector;
 
     std::string line;
 
@@ -77,24 +76,20 @@ int main(){
         }
 
         currentJob.calculateJobLength();
-        myJobList.push_back(currentJob);
+        jobVector.push_back(currentJob);
         currentJob.reset();
     }
     
-    printList(myJobList);
+    printVector(jobVector);
 
-    std::cout << "list size() = " << myJobList.size() << "\n";
+    std::cout << "list size() = " << jobVector.size() << "\n";
 
-    myJobList.sort( [] ( const Job& first, const Job& second) { return first.entireLength > second.entireLength;} );
+    std::sort(jobVector.begin(), jobVector.end(), [] ( const Job& first, const Job& second) { return first.entireLength > second.entireLength;} );
 
     std::cout << "\njobs insied list after sorting:\n";
-    printList(myJobList);
+    printVector(jobVector);
 
-    /* iterator and iserting test */ 
-    // weź wypierdol ten iterator
-    //std::list<Job>::iterator it = myJobList.begin();
 
-    // TODO: na chuj ci ten iterator użyj poprostu swapa i zapisuj wyniki!
 
 
     return 0;
