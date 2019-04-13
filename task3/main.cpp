@@ -42,6 +42,11 @@ void printVector(std::vector<Job> &vec){
     }
 }
 
+int calculateC_MAX(std::vector<Job> &vec, const int vecSizeLimit){
+
+    return 0;
+}
+
 int main(){
     std::cout << "Witam\n";
 
@@ -86,9 +91,42 @@ int main(){
 
     std::sort(jobVector.begin(), jobVector.end(), [] ( const Job& first, const Job& second) { return first.entireLength > second.entireLength;} );
 
-    std::cout << "\njobs insied list after sorting:\n";
+    std::cout << "\njobs insied vector after sorting:\n";
     printVector(jobVector);
 
+
+
+    int currentC_MAX;
+    int smallestC_MAX;
+    int quantityOfSwapsWithTheBestResult;
+
+    
+    for(int currentJob = 0, currentSetSize = 2; currentJob < jobVector.size() - 1; currentJob++, currentSetSize++){
+
+        currentC_MAX = calculateC_MAX(jobVector, currentSetSize);
+        smallestC_MAX = currentC_MAX;
+
+        // swap current job from last index jobVector.size() - 1 times, inside jobVector in order to obtain the smallestC_MAX
+        int quantityOfSwaps = 0;
+        for(int i = currentSetSize - 1;  i>= 1; i--){
+
+            quantityOfSwaps++;
+            std::swap(jobVector[i], jobVector[i-1]);
+            currentC_MAX = calculateC_MAX(jobVector, currentSetSize);
+
+            if(currentC_MAX < smallestC_MAX){
+                smallestC_MAX = currentC_MAX;
+                quantityOfSwapsWithTheBestResult = quantityOfSwaps;
+                
+            }
+        } // after this loop, job which we were swaping is placed at the last index in vector
+
+        // place job in the best possible place
+        for( int x = quantityOfSwaps, index = 0; x > quantityOfSwapsWithTheBestResult; x-- ){
+            std::swap(jobVector[index], jobVector[index+1]);
+            index++;
+        }
+    }
 
 
 
