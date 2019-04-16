@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 class Job{
     public:
@@ -71,6 +72,9 @@ int calculateC_MAX(Job jobs[], const int quantityOfJobs, const int quantityOfMac
 int main(){
     std::cout << "Witam\n";
 
+    clock_t begin;
+    clock_t end;
+
     std::ifstream myfile("neh.data.txt");
 
     int quantityOfJobs = 0;
@@ -87,6 +91,8 @@ int main(){
 
 
     if( ! myfile.is_open()) throw std::runtime_error("Could not open file");
+    
+    begin = clock();
 
     for (int dataIndex = 0; dataIndex <= 120; dataIndex++){
 
@@ -164,10 +170,13 @@ int main(){
 
         std::cout << dataIndexToString << "\n";
         printInitialOrder(jobs, quantityOfJobs); 
-        std::cout << "      result = " << calculateC_MAX(jobs, quantityOfJobs, quantityOfMachines ); std::cout << "\n";
+        std::cout << "\nresult = " << calculateC_MAX(jobs, quantityOfJobs, quantityOfMachines ); std::cout << "\n";
 
     }
     
-
+    end = clock();
+    double elapsedTimeInSeconds = double(end - begin) / (CLOCKS_PER_SEC);
+    std::cout << "\nElapsed time: " << elapsedTimeInSeconds << " seconds.\n"; 
+    myfile.close();
     return 0;
 }
