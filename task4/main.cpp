@@ -14,6 +14,7 @@ public:
     int R;
     int P;
     int Q;
+    int initialP;
 
     int initialIndex;
 
@@ -55,7 +56,7 @@ std::vector<int> getIndiciesAvailableJobs(std::vector<Job> & jobs, int elapsedTi
 
 // Funkcja dodaje zadanie o największym Q do vectora result
 // zwraca kolejność uszeregowania
-
+        // TODO: to nie musi nic zwracać bo i tak operuje na refernecji
 std::vector<Job> & addNewJobWithBiggestQ(std::vector<Job> & jobs, std::vector<int> & availbleTasksIndices, 
                                         std::vector<Job> &resultJobs, int & elapsedTime){
 
@@ -75,12 +76,30 @@ std::vector<Job> & addNewJobWithBiggestQ(std::vector<Job> & jobs, std::vector<in
             }
         }
     }
+    // trzeba znaleźć index pierwszego zadania którego czas R jest wiekszy od elapsedTime, to będzie tNext
+
+
+
+
+
+
+
+    //--------------------------------------------------------------
+    // znaleźlismy index zadania z największym Q. teraz musimy sprawdzić czy w trakcie czasu P tego zadania 
+    // pojawi się zadanie z wiekszym Q 
+
+    // jeśli pojawi się takie zadanie to wtedy zmniejszamy P pierwszego zadania które się wykonywało, o tyle ile się wykonalo
+    // oraz zwiększamy elapsedTime o tyle ile wykonalo się pierwsze zadanie
+    // i zaczynamy wykonywać to drugie zadanie.
+    // zadanie pierwsze powraca do póli zadań dostępnych.
+
+    // chyba rekurencyjnie to będziez trzeba zrobić 
 
 
     resultJobs.push_back(jobs[biggestQIndex]);
     elapsedTime += jobs[biggestQIndex].P;
 
-    //jobs.erase(jobs.begin() + biggestQIndex -1);  // munmap_chunk(): invalid pointer
+    //jobs.erase(jobs.begin() + biggestQIndex -1);  // munmap_chunk(): invalid pointer // to przez tą minus jedynke
 
     jobs[biggestQIndex].R = std::numeric_limits<int>::max(); // podmieniamy wartość R zadania które własnie dodaliśmy do kolekcji result.
     // powodem tej podmiany jest to że keidy usuwaliśmy za pomocą erase() to wylatywał nam wyjątek munmap_chunk();
@@ -182,6 +201,10 @@ int main(int argc,char **argv){
         int C_max = calculateC_MAX(result);
 
         std::cout << "\n Current data set:" << dataSetIndex << " C_max = " << C_max << "\n";
+        for (auto &obj : result){
+            std::cout << obj.initialIndex+1 << ", ";
+        }
+        std::cout << "\n";
 
         result.clear();
         jobs.clear();
@@ -193,4 +216,15 @@ int main(int argc,char **argv){
 
 /*
  Zadanie dostępne to zadanie dla którego minął już czas R ale jeszcze nie minął czas P
+
+t
+tnext
+currentJob
+
+t=std::min(t+currentJob.P, tnext)
+
+zmniejszamy currentJob.P o tyle ile sie przesuneliśmy jednostek
+
+// to obliczamy w przypadku wyzerowania pola P currentJob
+Cmax = std::max(t + currentJob.Q, Cmax)
 */

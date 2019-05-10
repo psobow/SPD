@@ -54,6 +54,83 @@ std::vector<int> getIndiciesAvailableJobs(std::vector<Job> & jobs, int elapsedTi
     return result; 
 }
 
+// arguemtn jobs musi byc posorotwany rosnąco po R
+        
+void shrageNormal(std::vector<Job> & jobs){
+    std::vector<Job> deepCopyJobs = jobs;
+
+    int elapsedTime = deepCopyJobs[0].R;
+    int newElapsedTime = 0;
+    int elapsedTimeNext;
+    int Cmax = 0;
+    int biggestQIndex;
+    int biggestQ;
+
+    std::vector<int> indicesAvailableJobs;
+
+
+    while (deepCopyJobs.size() != 0){
+        indicesAvailableJobs = getIndiciesAvailableJobs(deepCopyJobs, elapsedTime);
+
+        if (indicesAvailableJobs.size() != 0){
+            biggestQIndex = indicesAvailableJobs[0];
+            biggestQ = deepCopyJobs[biggestQIndex].Q;
+
+            for (int index : indicesAvailableJobs){
+                if(biggestQ < deepCopyJobs[index].Q){ 
+                    biggestQ = deepCopyJobs[index].Q;
+                    biggestQIndex = index;
+
+                } else if (biggestQ == deepCopyJobs[index].Q){ // jeżeli takie same Q to bierzemy o mniejszym indexie początkowym
+
+                    if(deepCopyJobs[biggestQIndex].initialIndex > deepCopyJobs[index].initialIndex){
+                        biggestQ = deepCopyJobs[index].Q;
+                        biggestQIndex = index;
+                    }
+                }
+            }
+            // trzeba znaleźć index pierwszego zadania którego czas R jest wiekszy od elapsedTime, to będzie tNext
+
+            elapsedTimeNext = std::numeric_limits<int>::max();
+            for (int i = 0; i < deepCopyJobs.size(); i++) {
+                if (deepCopyJobs[i].R > elapsedTime){
+                    elapsedTimeNext = deepCopyJobs[i].R;
+                    break;
+                }
+            }
+
+            /*
+            newElapsedTime = std::min(elapsedTime + deepCopyJobs[biggestQIndex].P, elapsedTimeNext);
+            deepCopyJobs[biggestQIndex].P = deepCopyJobs[biggestQIndex].P - (newElapsedTime - elapsedTime);
+            elapsedTime = newElapsedTime;
+            */
+
+            elapsedTime += deepCopyJobs[biggestQIndex].P;
+
+            /*
+            // jeśli P zmniejszyło się do zera to obliczay Cmax i usuwamy tą prace z kolekcji
+            if (deepCopyJobs[biggestQIndex].P == 0){
+                Cmax = std::max(elapsedTime + deepCopyJobs[biggestQIndex].Q, Cmax);
+                // usunać z kolekcji deepCopyJobs obiekt pod indexem biggestQIndex
+                deepCopyJobs.erase(deepCopyJobs.begin() + biggestQIndex);
+            }
+            */
+
+            Cmax = std::max(elapsedTime + deepCopyJobs[biggestQIndex].Q, Cmax);
+            // usunać z kolekcji deepCopyJobs obiekt pod indexem biggestQIndex
+            deepCopyJobs.erase(deepCopyJobs.begin() + biggestQIndex);
+
+        } else {
+            elapsedTime = elapsedTimeNext;
+        }
+    }    
+
+
+    std::cout << "Cmax: " << Cmax << "\n";
+
+
+}
+
 
 // arguemtn jobs musi byc posorotwany rosnąco po R
         
@@ -100,10 +177,13 @@ void shrageWithInterrupt(std::vector<Job> & jobs){
                 }
             }
 
-
+            
             newElapsedTime = std::min(elapsedTime + deepCopyJobs[biggestQIndex].P, elapsedTimeNext);
             deepCopyJobs[biggestQIndex].P = deepCopyJobs[biggestQIndex].P - (newElapsedTime - elapsedTime);
             elapsedTime = newElapsedTime;
+            
+
+
             
             // jeśli P zmniejszyło się do zera to obliczay Cmax i usuwamy tą prace z kolekcji
             if (deepCopyJobs[biggestQIndex].P == 0){
@@ -111,6 +191,8 @@ void shrageWithInterrupt(std::vector<Job> & jobs){
                 // usunać z kolekcji deepCopyJobs obiekt pod indexem biggestQIndex
                 deepCopyJobs.erase(deepCopyJobs.begin() + biggestQIndex);
             }
+            
+
         } else {
             elapsedTime = elapsedTimeNext;
         }
