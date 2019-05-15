@@ -11,6 +11,14 @@
 
 std::ofstream output;
 
+clock_t beginTimeC_MAX;
+clock_t endTimeC_MAX;
+
+double C_MAXtime = 0;
+
+int temp[501][21]; // tablica wykorzystywana w funkcji calculateC_MAX
+
+
 
 class Job {
 public:
@@ -33,15 +41,7 @@ public:
 		entireLength = 0;
 	}
 
-	bool operator>= (const Job& job) {
-		return this->entireLength >= job.entireLength;
-	}
-
 };
-
-bool operator>= (const Job& job1, const Job& job) {
-	return job1.entireLength >= job.entireLength;
-}
 
 
 
@@ -61,14 +61,8 @@ void printInitialOrder(Job jobs[], int size) {
 	}
 }
 
-clock_t beginTimeC_MAX;
-clock_t endTimeC_MAX;
 
-double C_MAXtime = 0;
-
-int temp[501][21];
-
-int calculateC_MAX(Job jobs[], const int quantityOfJobs, const int quantityOfMachines) { // vecSizeLimit corespond with the quantity of jobs in subset
+int calculateC_MAX(Job jobs[], const int quantityOfJobs, const int quantityOfMachines) {
 	beginTimeC_MAX = clock();
 	temp[1][1] = jobs[1].tasks[1];
 
@@ -94,34 +88,6 @@ int calculateC_MAX(Job jobs[], const int quantityOfJobs, const int quantityOfMac
 	return temp[quantityOfJobs][quantityOfMachines];
 }
 
-Job tempJobs[500];
-
-Job* pushFront(Job jobs[], int jobsSize, Job newJob) {
-	tempJobs[0] = newJob;
-	for (int i = 1; i <= jobsSize; i++) {
-		tempJobs[i] = jobs[i-1];
-	}
-
-	return tempJobs;
-}
-
-void pushBack(Job jobs[], int jobsSize, Job newJob) {
-	jobs[jobsSize] = newJob;
-}
-
-Job* placeNewJobIn(Job jobs[], int jobsSize, int index, Job newJob) {
-	
-	for (int i = 0; i < index; i++) {
-		tempJobs[i] = jobs[i];
-	}
-	tempJobs[index] = newJob;
-
-	for (int i = index; i < jobsSize; i++) {
-		tempJobs[i+1] = jobs[i];
-	}
-
-	return tempJobs;
-}
 
 
 int main() {
@@ -178,49 +144,37 @@ int main() {
 		myfile >> quantityOfJobs;
 		myfile >> quantityOfMachines;
 
-		//std::cout << "qJob = " << quantityOfJobs << " qMachines = " << quantityOfMachines << "\n";
-
 		
 		// read data set 
 		for (int row = 0; row < quantityOfJobs; row++) { // row corespond with quantityOfJobs inside array
-			for (int col = 0; col < quantityOfMachines; col++) {
+			for (int col = 0; col < quantityOfMachines; col++) { // col correspond with quantityOfMachines 
 				myfile >> temporaryValue;
 				currentJob.tasks[col] = temporaryValue;
 			}
 			currentJob.initialIndex = row;
 			currentJob.calculateJobLength(quantityOfMachines);
-			/*
-			if (row == 0) {
-				pushBack(jobs, 0, currentJob);
-			}
 
-			for (int i = 0; i <= row; i++) {
-
-			}
-			*/
 			jobs[row] = currentJob;
-
 		}
 
 
-		//printArray(jobs, quantityOfJobs , quantityOfMachines);
-
-		//std::cout << "\n\n";
-		// TODO: zmodyfikować sortowanie:
 
 		/*
-		Trzeba posortować tak żeby w przypadku zadań o tej samej wartości sumy czasu pracy.
-		pierwsze było to które ma mniejszy index początkowy. czyli to zadanie które było pierwsze podane na wejściu powinno być pierwsze w przypadku tych samych sum czasu.
+		Pierwszy istotny fakt aby uzyskać takie same wyniki jak u pana Doktora:
+
+		Trzeba posortować tak żeby w przypadku zadań o tej samej wartości entireLength
+		pierwsze było to które ma mniejszą wartość initialIndex. czyli to zadanie które było pierwsze podane na wejściu powinno być pierwsze w przypadku takich samych entireLength.
 		*/
 
-		// std::greater_equal<int>()
 
 		beginSort = clock();
-
+		// Najpierw sortuje tablice na podstawie wartości entireLength
 		std::sort(jobs, jobs + quantityOfJobs, [](const Job & first, const Job & second) { return first.entireLength > second.entireLength; });
 		int firstIndexOfSameValue = 0;
 		int lastIndexOfSameValue = 0;
 
+		// Teraz szukam takich fragmentów w tablicy gdzie obok siebie są Job'y których wartość entireLength jest taka sama
+		// następnie sortuje ten fragment tablicy na podstawie initialIndex
 		for (int i = 0; i < quantityOfJobs-1; i++) {
 			if (jobs[i].entireLength == jobs[i + 1].entireLength) {
 				firstIndexOfSameValue = i;
@@ -238,31 +192,7 @@ int main() {
 
 
 
-		/*
-		for (int i = 0; i < quantityOfJobs; i++) {
 
-			if ( jobs[i].entireLength == jobs[i + 1].entireLength && jobs[i].initialIndex > jobs[i+1].initialIndex ){
-				std::swap(jobs[i], jobs[i + 1]);
-			}
-		}
-		*/
-		
-
-		//std::sort(jobs, jobs + quantityOfJobs, std::greater_equal<Job>());
-
-		/*
-		for (int i = 0; i < quantityOfJobs - 1; i++) {
-			for (int j = 0; j < quantityOfJobs - i - 1; j++) {
-				if (jobs[j].entireLength < jobs[j+1].entireLength) {
-					std::swap(jobs[j], jobs[j + 1]);
-				}
-			}
-		}
-		*/
-		
-
-
-		//printArray(jobs, quantityOfJobs , quantityOfMachines);
 
 		 // neh algorithm:
 
@@ -291,11 +221,15 @@ int main() {
 				currentC_MAX = calculateC_MAX(jobs, currentSetSize, quantityOfMachines); 
 				//std::cout << "\n"; printArray(jobs, currentSetSize, quantityOfMachines); 
 				//std::cout << "Swaps = " << quantityOfSwaps << " current C_MAX = " << currentC_MAX << "\n";
-				
-				
-					//Tutaj trzeba brać ostatnie uszeregowanie, które daje najmniejszy czas C_MAX.
-					//więc jeśli mamy dwa najmniejsze uszeregowania o tym samym czasie to wybieramy uszeregowanie ostatnie znalezione.
-					// czyli musi być (currentC_MAX <= smallestC_MAX) zamiast (currentC_MAX < smallestC_MAX)
+
+
+
+
+// Tutaj jest drugi istotny fragment aby uzyskać takie same wyniki jak u pana doktora:
+
+//Tutaj trzeba brać ostatnie uszeregowanie, które daje najmniejszy czas C_MAX.
+//więc jeśli mamy dwa najmniejsze uszeregowania o tym samym czasie to wybieramy uszeregowanie ostatnie znalezione.
+// czyli musi być (currentC_MAX <= smallestC_MAX) zamiast (currentC_MAX < smallestC_MAX)
 				
 				if (currentC_MAX <= smallestC_MAX) {
 					smallestC_MAX = currentC_MAX;
