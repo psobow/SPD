@@ -41,6 +41,16 @@ int main(){
 
             // read quantity of measures
             myfile >> quantityOfDataLines;
+            try 
+            {
+                if (quantityOfDataLines == 0) throw std::runtime_error( std::string("Could not read data from file. (probably inappropriate end of line character in variable dataName)\n") + 
+                    "Try \\n, \\n\\r, \\r, or none" );
+            }
+            catch (const std::exception & e)
+            {
+                std::cerr << e.what() << "\n";
+                exit(-1);
+            }
             
             // read data
             

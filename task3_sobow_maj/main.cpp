@@ -144,6 +144,17 @@ int main() {
 		myfile >> quantityOfJobs;
 		myfile >> quantityOfMachines;
 
+		try 
+		{
+			if (quantityOfJobs == 0) throw std::runtime_error( std::string("\nCould not read data from file. (probably inappropriate end of line character in variable dataIndexToString)\n") + 
+				"Try \\n, \\n\\r, \\r, or none" );
+		}
+		catch (const std::exception & e)
+		{
+			std::cerr << e.what() << "\n";
+			exit(-1);
+		}
+
 		
 		// read data set 
 		for (int row = 0; row < quantityOfJobs; row++) { // row corespond with quantityOfJobs inside array

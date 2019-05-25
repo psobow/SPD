@@ -29,9 +29,17 @@ int main(){
 
     for(int dataIndex = 10; dataIndex <= 20; dataIndex++){
         while ( getline(myfile, line) && (line != "data." + std::to_string(dataIndex) + ":\r") ); // skip useless data
-
-
         myfile >> quantityOfData;
+        try 
+		{
+			if (quantityOfData == 0) throw std::runtime_error( std::string("Could not read data from file. (probably inappropriate end of line character)\n") + 
+				"Try \\n, \\n\\r, \\r, or none" );
+		}
+		catch (const std::exception & e)
+		{
+			std::cerr << e.what() << "\n";
+			exit(-1);
+		}
         for(int i = 0; i < quantityOfData; i++){
             myfile >> taskDurance[i]
                    >> taskPriority[i]

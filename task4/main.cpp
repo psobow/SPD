@@ -131,6 +131,16 @@ int main(int argc,char **argv){
 
         while (getline(myfile, line) && (line != currentDataSet)); // skip useless data
         myfile >> quantityOfData;
+        try 
+		{
+			if (quantityOfData == 0) throw std::runtime_error( std::string("Could not read data from file. (probably inappropriate end of line character in variable currentDataSet)\n") + 
+				"Try \\n, \\n\\r, \\r, or none" );
+		}
+		catch (const std::exception & e)
+		{
+			std::cerr << e.what() << "\n";
+			exit(-1);
+		}
 
         // read data
                 

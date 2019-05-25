@@ -14,21 +14,22 @@ public:
     int R;
     int P;
     int Q;
-    int initialP;
+
+    int P_whichWillBeModifyInInterruptShrage;
 
     int initialIndex;
 
     Job job() {};
 
     void showJob(){
-        std::cout << "R: " << R << " P: " << initialP << " Q: " << Q << " init index: " << initialIndex+1 << "\n";
+        std::cout << "R: " << R << " P: " << P << " Q: " << Q << " init index: " << initialIndex+1 << "\n";
     }
 };
 
 int calculateC_MAX(std::vector<Job> & jobs){
     int m = 0 , c = 0;
     for(int i = 0; i < jobs.size(); i++){
-        m = std::max(jobs[i].R, m) + jobs[i].initialP;
+        m = std::max(jobs[i].R, m) + jobs[i].P;
         c = std::max(c , m + jobs[i].Q);
     }
     return c;
@@ -56,8 +57,9 @@ std::vector<int> getIndiciesAvailableJobs(std::vector<Job> & jobs, int elapsedTi
 
 // arguemtn jobs musi byc posorotwany rosnąco po R
         
-void shrageNormal(std::vector<Job> & jobs){
+std::vector<Job> shrageNormal(std::vector<Job> & jobs){
     std::vector<Job> deepCopyJobs = jobs;
+    std::vector<Job> result;
 
     int elapsedTime = deepCopyJobs[0].R;
     int newElapsedTime = 0;
@@ -117,6 +119,9 @@ void shrageNormal(std::vector<Job> & jobs){
             */
 
             Cmax = std::max(elapsedTime + deepCopyJobs[biggestQIndex].Q, Cmax);
+            
+            result.push_back(deepCopyJobs[biggestQIndex]);
+
             // usunać z kolekcji deepCopyJobs obiekt pod indexem biggestQIndex
             deepCopyJobs.erase(deepCopyJobs.begin() + biggestQIndex);
 
@@ -128,6 +133,8 @@ void shrageNormal(std::vector<Job> & jobs){
 
     std::cout << "Cmax: " << Cmax << "\n";
 
+    return result;
+
 
 }
 
@@ -136,6 +143,7 @@ void shrageNormal(std::vector<Job> & jobs){
         
 void shrageWithInterrupt(std::vector<Job> & jobs){
     std::vector<Job> deepCopyJobs = jobs;
+    //std::vector<Job> result;
 
     int elapsedTime = deepCopyJobs[0].R;
     int newElapsedTime = 0;
@@ -178,16 +186,19 @@ void shrageWithInterrupt(std::vector<Job> & jobs){
             }
 
             
-            newElapsedTime = std::min(elapsedTime + deepCopyJobs[biggestQIndex].P, elapsedTimeNext);
-            deepCopyJobs[biggestQIndex].P = deepCopyJobs[biggestQIndex].P - (newElapsedTime - elapsedTime);
+            newElapsedTime = std::min(elapsedTime + deepCopyJobs[biggestQIndex].P_whichWillBeModifyInInterruptShrage, elapsedTimeNext);
+            deepCopyJobs[biggestQIndex].P_whichWillBeModifyInInterruptShrage = deepCopyJobs[biggestQIndex].P_whichWillBeModifyInInterruptShrage - (newElapsedTime - elapsedTime);
             elapsedTime = newElapsedTime;
             
 
 
             
             // jeśli P zmniejszyło się do zera to obliczay Cmax i usuwamy tą prace z kolekcji
-            if (deepCopyJobs[biggestQIndex].P == 0){
+            if (deepCopyJobs[biggestQIndex].P_whichWillBeModifyInInterruptShrage == 0){
                 Cmax = std::max(elapsedTime + deepCopyJobs[biggestQIndex].Q, Cmax);
+                
+                //result.push_back(deepCopyJobs[biggestQIndex]);
+
                 // usunać z kolekcji deepCopyJobs obiekt pod indexem biggestQIndex
                 deepCopyJobs.erase(deepCopyJobs.begin() + biggestQIndex);
             }
@@ -200,6 +211,8 @@ void shrageWithInterrupt(std::vector<Job> & jobs){
 
 
     std::cout << "Cmax: " << Cmax << "\n";
+
+    //return result; // TODO: to nie ma żadnego sensu tutaj
 
 
 
@@ -228,6 +241,7 @@ void shrageWithInterrupt(std::vector<Job> & jobs){
 int main(int argc,char **argv){
     
     std::vector<Job> jobs;
+    std::vector<Job> result;
     Job temporaryJob;
     
 
@@ -249,13 +263,22 @@ int main(int argc,char **argv){
 
         while (getline(myfile, line) && (line != currentDataSet)); // skip useless data
         myfile >> quantityOfData;
-
+        try 
+		{
+			if (quantityOfData == 0) throw std::runtime_error( std::string("Could not read data from file. (probably inappropriate end of line character in variable currentDataSet)\n") + 
+				"Try \\n, \\n\\r, \\r, or none" );
+		}
+		catch (const std::exception & e)
+		{
+			std::cerr << e.what() << "\n";
+			exit(-1);
+		}
         // read data
                 
         for(int i = 0; i < quantityOfData; i++){
             myfile >> temporaryJob.R >> temporaryJob.P >> temporaryJob.Q;
             temporaryJob.initialIndex = i;
-            temporaryJob.initialP = temporaryJob.P;
+            temporaryJob.P_whichWillBeModifyInInterruptShrage = temporaryJob.P;
 
             jobs.push_back(temporaryJob);
         }
@@ -273,8 +296,10 @@ int main(int argc,char **argv){
 
         // Shrange przerwania
 
-        shrageWithInterrupt(jobs);
-
+        //shrageWithInterrupt(jobs);
+        
+        result = shrageNormal(jobs);
+        std::cout << "Cmax, vectora zwróconego z funkcji shrage, obliczony w mainie: " << calculateC_MAX(result) << "\n";
         
         
         
