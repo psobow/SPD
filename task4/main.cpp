@@ -170,7 +170,7 @@ int main(int argc,char **argv){
 
         while (result.size() != initialQuantitiOfJobs){
 
-            // Z puli zadań wyszukujemy te indexy zadań których R jest większe bądź równe elapsedTime
+            // Z puli zadań wyszukujemy te indexy zadań których R jest mniejsze bądź równe elapsedTime
             // oraz nie bierzemy pod uwage zadań uprzednio dodanych do kolekcji result
 
             indicesAvailableJobs = getIndiciesAvailableJobs(jobs, elapsedTime); 
